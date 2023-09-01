@@ -1,5 +1,6 @@
 package o.akuma.a7minutesworkout
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -34,6 +35,7 @@ class ExerciseActivity : AppCompatActivity() {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
 
+        //this provides the same behaviour with the back button to the button on the nav
         binding.tbExercise.setNavigationOnClickListener {
             onBackPressed()
         }
@@ -49,6 +51,7 @@ class ExerciseActivity : AppCompatActivity() {
         restProgressBar()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupExerciseView(){
         binding.flProgressBar.visibility = View.INVISIBLE
         binding.tvTitle.text = "Exercise Name"
