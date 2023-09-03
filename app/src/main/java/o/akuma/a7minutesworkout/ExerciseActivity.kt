@@ -4,14 +4,18 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import o.akuma.a7minutesworkout.databinding.ActivityExerciseBinding
+import java.util.Locale
 
 @Suppress("DEPRECATION")
-class ExerciseActivity : AppCompatActivity() {
+class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     lateinit var binding: ActivityExerciseBinding
+    private var tts: TextToSpeech? = null
 
     private var restTimer: CountDownTimer? = null
     private var restProgress = 0
@@ -30,6 +34,7 @@ class ExerciseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        tts = TextToSpeech(this, this)
 
         setSupportActionBar(binding.tbExercise)
 
@@ -84,6 +89,8 @@ class ExerciseActivity : AppCompatActivity() {
         binding.flExerciseView.visibility = View.VISIBLE
         binding.ivImage.visibility = View.VISIBLE
 
+        speakOut(exerciseList!![currentExercisePosition].getName())
+
 
         if (exerciseTimer != null) {
             exerciseTimer?.cancel()
@@ -136,25 +143,34 @@ class ExerciseActivity : AppCompatActivity() {
                         this@ExerciseActivity,
                         "Congratulations You Have Completed " +
                                 "The 7 Minutes Workout", Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                 }
             }
 
         }.start()
     }
 
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts!!.setLanguage(Locale.ENGLISH)
+
+            if (result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "Language Not Supported")
+            } else {
+                Log.e("TTS", "Initialization Failed")
+            }
+        }
+    }
+
+    private fun speakOut(text: String) {
+        tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-
-        if (restTimer != null) {
-            restTimer?.cancel()
-            restProgress = 0
-        }
-
-        if (exerciseTimer != null) {
-            exerciseTimer?.cancel()
-            exerciseProgress = 0
+        if (tts != null) {
+            tts?.stop()
+            tts?.shutdown()
         }
     }
 
